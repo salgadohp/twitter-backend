@@ -25,9 +25,9 @@ module.exports.handler = async (event) => {
         Bucket: BUCKET_NAME,
         Key: key,
         ACL: 'public-read',
-        contentType: contentType
+        ContentType: contentType
     };
-    
+    //To do change for a post object and put size limit
     const signedUrl = s3.getSignedUrl('putObject', params);
     return signedUrl;
 };
