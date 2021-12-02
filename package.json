@@ -35,10 +35,10 @@
     "serverless-export-env": "^1.4.0",
     "serverless-iam-roles-per-function": "^3.2.0",
     "serverless-manifest-plugin": "^1.0.9",
-    "ulid": "^2.3.0"
+    "dotenv": "^10.0.0"
   },
   "dependencies": {
     "chance": "^1.1.7",
-    "dotenv": "^10.0.0"
+    "ulid": "^2.3.0"
   }
 }

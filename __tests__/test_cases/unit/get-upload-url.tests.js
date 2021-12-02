@@ -24,7 +24,7 @@ describe("When getImageUploadUrl runs", () => {
         `https://${BUCKET_NAME}.s3-accelerate.amazonaws.com/${username}/.*.${
           extension || ""
         }\?.*Content-Type=${
-          contentType ? contentType.replace("/", "%2F") : "image%2F"
+          contentType ? contentType.replace("/", "%2F") : "image%2Fjpeg"
         }.*`
       );
       expect(signedUrl).toMatch(regex);
