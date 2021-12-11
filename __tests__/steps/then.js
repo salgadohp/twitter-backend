@@ -1,6 +1,8 @@
 const AWS = require("aws-sdk");
 require("dotenv").config();
-const tableName = process.env.USERS_TABLE;
+const usersTable = process.env.USERS_TABLE;
+const tweetsTable = process.env.TWEETS_TABLE;
+const timelineTable = process.env.TIMELINES_TABLE;
 const axios = require("axios");
 const fs = require("fs");
 const _ = require("lodash");
@@ -8,9 +10,9 @@ const _ = require("lodash");
 const user_exists_in_UsersTable = async (id) => {
   const DynamoDB = new AWS.DynamoDB.DocumentClient();
 
-  console.log(`Looking for user [${id}] in table [${tableName}] `);
+  console.log(`Looking for user [${id}] in table [${usersTable}] `);
   const response = await DynamoDB.get({
-    TableName: tableName,
+    TableName: usersTable,
     Key: {
       id,
     },
@@ -60,8 +62,61 @@ const user_can_download_image_from = async (url) => {
   }
 };
 
+const tweet_exists_in_TweetsTable = async (id) => {
+  const DynamoDB = new AWS.DynamoDB.DocumentClient();
+
+  console.log(`Looking for tweet  [${id}] in table [${tweetsTable}] `);
+  const response = await DynamoDB.get({
+    TableName: tweetsTable,
+    Key: {
+      id,
+    },
+  }).promise();
+
+  expect(response.Item).toBeTruthy();
+
+  return response.Item;
+};
+
+const tweet_exists_in_TimelinesTable = async (userId, tweetId) => {
+  const DynamoDB = new AWS.DynamoDB.DocumentClient();
+
+  console.log(`Looking for tweet  [${userId}] for user [${userId}] in table [${timelineTable}] `);
+  const response = await DynamoDB.get({
+    TableName: timelineTable,
+    Key: {
+      userId,
+      tweetId
+    },
+  }).promise();
+
+  expect(response.Item).toBeTruthy();
+
+  return response.Item;
+};
+
+const tweetCount_is_updated_in_UsersTable = async (id, newCount) => {
+  const DynamoDB = new AWS.DynamoDB.DocumentClient();
+
+  console.log(`Looking for user [${id}] in table [${usersTable}] `);
+  const response = await DynamoDB.get({
+    TableName: usersTable,
+    Key: {
+      id,
+    },
+  }).promise();
+
+  expect(response.Item).toBeTruthy();
+  expect(response.Item.tweetsCount).toEqual(newCount)
+  return response.Item;
+};
+
+
 module.exports = {
   user_exists_in_UsersTable,
   user_can_upload_image_to_url,
   user_can_download_image_from,
+  tweet_exists_in_TweetsTable,
+  tweet_exists_in_TimelinesTable,
+  tweetCount_is_updated_in_UsersTable
 };
