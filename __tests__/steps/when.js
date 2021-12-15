@@ -130,8 +130,8 @@ const a_user_calls_editMyProfile = async (user, input) => {
   }`;
 
   const variables = {
-    input
-  }
+    input,
+  };
 
   const data = await GraphQL(
     process.env.API_URL,
@@ -146,20 +146,24 @@ const a_user_calls_editMyProfile = async (user, input) => {
   return profile;
 };
 
-const we_invoke_getImageUploadUrl = async (username, extension, contentType) =>{
+const we_invoke_getImageUploadUrl = async (
+  username,
+  extension,
+  contentType
+) => {
   const handler = require("../../functions/get-upload-url").handler;
   const context = {};
   const event = {
     identity: {
-      username
+      username,
     },
     arguments: {
       extension,
-      contentType
-    }
-  }
+      contentType,
+    },
+  };
   return await handler(event, context);
-}
+};
 
 const a_user_calls_getImageUploadUrl = async (user, extension, contentType) => {
   const getImageUploadUrl = `query getImageUploadUrl($extension: String, $contentType: String){
@@ -168,28 +172,33 @@ const a_user_calls_getImageUploadUrl = async (user, extension, contentType) => {
 
   const variables = {
     extension,
-    contentType
-  }
+    contentType,
+  };
 
-  const data = await GraphQL(process.env.API_URL, getImageUploadUrl, variables, user.accessToken);
+  const data = await GraphQL(
+    process.env.API_URL,
+    getImageUploadUrl,
+    variables,
+    user.accessToken
+  );
   const url = data.getImageUploadUrl;
   console.log(`[${user.username}] - got image upload url`);
 
-  return url
-}
+  return url;
+};
 
 const we_invoke_tweet = async (username, text) => {
-  const handler = require('../../functions/tweet').handler;
+  const handler = require("../../functions/tweet").handler;
 
   const context = {};
   const event = {
     identity: {
-      username
+      username,
     },
     arguments: {
-      text
-    }
-  }
+      text,
+    },
+  };
 
   return await handler(event, context);
 };
@@ -199,6 +208,11 @@ const a_user_calls_tweet = async (user, text) => {
     tweet(text: $text) {
       id
       createdAt
+      profile {
+        id
+        name
+        screenName
+      }
       text
       replies
       likes
@@ -207,16 +221,61 @@ const a_user_calls_tweet = async (user, text) => {
   }`;
 
   const variables = {
-    text
-  }
+    text,
+  };
 
-  const data = await GraphQL(process.env.API_URL, tweet, variables, user.accessToken);
+  const data = await GraphQL(
+    process.env.API_URL,
+    tweet,
+    variables,
+    user.accessToken
+  );
   const newTweet = data.tweet;
   console.log(`[${user.username}] - posted new tweet`);
 
   return newTweet;
-}
+};
 
+const a_user_calls_getTweets = async (user, userId, limit, nextToken) => {
+  const getTweets = `query getTweets($userId: ID!, $limit: Int!, $nextToken: String){
+    getTweets(userId: $userId, limit: $limit, nextToken: $nextToken) {
+      nextToken
+      tweets{
+        id
+        createdAt
+        profile {
+          id
+          name
+          screenName
+        }
+        ... on Tweet{
+          text
+          replies
+          likes
+          retweets
+        }
+      }
+
+    }
+  }`;
+
+  const variables = {
+    userId,
+    limit,
+    nextToken,
+  };
+
+  const data = await GraphQL(
+    process.env.API_URL,
+    getTweets,
+    variables,
+    user.accessToken
+  );
+  const newTweet = data.getTweets;
+  console.log(`[${user.username}] - posted new tweet`);
+
+  return newTweet;
+};
 
 module.exports = {
   we_invoke_getImageUploadUrl,
@@ -227,5 +286,6 @@ module.exports = {
   a_user_calls_getMyProfile,
   a_user_calls_editMyProfile,
   a_user_calls_getImageUploadUrl,
-  a_user_calls_tweet
+  a_user_calls_tweet,
+  a_user_calls_getTweets,
 };
